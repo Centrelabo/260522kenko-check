@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>健康経営優良法人2026 簡易チェックシート</title>
+  <style>
+    :root {
+      --blue:        #1e40af;
+      --blue-mid:    #3b82f6;
+      --blue-light:  #dbeafe;
+      --blue-pale:   #eff6ff;
+      --green:       #15803d;
+      --green-light: #dcfce7;
+      --amber:       #b45309;
+      --amber-light: #fef3c7;
+      --red:         #dc2626;
+      --red-light:   #fee2e2;
+      --purple:      #6d28d9;
+      --purple-light:#ede9fe;
+      --gray:        #6b7280;
+      --border:      #e5e7eb;
+      --bg:          #f1f5f9;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic Medium', 'Meiryo', sans-serif;
+      background: var(--bg);
+      color: #111827;
+      line-height: 1.7;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+      color: white;
+      padding: 28px 24px 22px;
+      text-align: center;
+    }
+    header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.02em; }
+    header p  { font-size: 0.82rem; opacity: 0.75; margin-top: 4px; }
+
+    /* ── Sticky bar ── */
+    .sticky-bar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .sticky-bar span { font-size: 0.8rem; color: var(--gray); }
+    .mode-btn {
+      padding: 7px 18px;
+      border-radius: 100px;
+      border: 2px solid var(--border);
+      background: white;
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--gray);
+      transition: all 0.18s;
+    }
+    .mode-btn:hover:not(.active) { border-color: var(--blue-mid); color: var(--blue); }
+    .mode-btn.active { border-color: var(--blue); background: var(--blue); color: white; font-weight: 700; }
+
+    /* ── Container ── */
+    .container { max-width: 840px; margin: 0 auto; padding: 22px 14px 56px; }
+
+    /* ── Result Panel ── */
+    .result-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .res-card {
+      background: #f3f4f6;
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: center;
+      transition: background 0.3s, box-shadow 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .res-card.pass   { background: var(--green-light); box-shadow: 0 0 0 2px #86efac; }
+    .res-card.fail   { background: var(--red-light);   box-shadow: 0 0 0 2px #fca5a5; }
+    .res-card.partial{ background: var(--amber-light);  box-shadow: 0 0 0 2px #fcd34d; }
+    .res-card .r-label { font-size: 0.72rem; color: var(--gray); margin-bottom: 5px; }
+    .res-card.pass .r-label   { color: var(--green); }
+    .res-card.fail .r-label   { color: var(--red); }
+    .res-card.partial .r-label{ color: var(--amber); }
+    .res-card .r-val  { font-size: 1.15rem; font-weight: 800; color: #111; }
+    .res-card.pass .r-val   { color: var(--green); }
+    .res-card.fail .r-val   { color: var(--red); }
+    .res-card.partial .r-val{ color: var(--amber); }
+
+    /* ── Section card ── */
+    .section {
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+    }
+
+    /* ── Section headers ── */
+    .sec-head {
+      padding: 12px 18px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .sec-head.lv1 { background: #1e3a8a; color: white; font-size: 0.93rem; }
+    .sec-head.lv2 { background: #2563eb; color: white; font-size: 0.85rem; font-weight: 600; }
+    .sec-head.lv3 { background: var(--blue-light); color: var(--blue); font-size: 0.8rem; font-weight: 600; }
+
+    .req-tag {
+      margin-left: auto;
+      font-size: 0.7rem;
+      padding: 2px 9px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .lv1 .req-tag { background: rgba(255,255,255,0.22); color: rgba(255,255,255,0.9); }
+    .lv2 .req-tag { background: rgba(255,255,255,0.22); color: rgba(255,255,255,0.9); }
+    .lv3 .req-tag { background: rgba(30,64,175,0.12);  color: var(--blue); }
+
+    /* ── Checklist items ── */
+    label.item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 18px;
+      cursor: pointer;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.1s;
+      font-size: 0.87rem;
+    }
+    label.item:last-of-type { border-bottom: none; }
+    label.item:hover  { background: #f8fafc; }
+    label.item.req-bg { background: #fffbeb; }
+    label.item.req-bg:hover { background: #fef9ec; }
+    label.item input[type="checkbox"] {
+      width: 17px; height: 17px;
+      margin-top: 2px; flex-shrink: 0;
+      accent-color: var(--blue); cursor: pointer;
+    }
+    .badge {
+      font-size: 0.7rem; font-weight: 700;
+      padding: 1px 7px; border-radius: 100px;
+      white-space: nowrap; flex-shrink: 0; margin-top: 3px;
+    }
+    .b-must    { background: #fee2e2; color: #991b1b; }
+    .b-a       { background: var(--blue-light); color: #1d4ed8; }
+    .b-b       { background: #d1fae5; color: #065f46; }
+    .b-c       { background: var(--purple-light); color: var(--purple); }
+    .item-sub  { font-size: 0.76rem; color: var(--gray); display: block; margin-top: 1px; }
+
+    /* ── Group progress bar ── */
+    .grp-foot {
+      padding: 9px 18px;
+      border-top: 1px solid #f1f5f9;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: var(--gray);
+    }
+    .pbar { flex: 1; height: 6px; background: #e5e7eb; border-radius: 100px; overflow: hidden; }
+    .pfill {
+      height: 100%; border-radius: 100px;
+      transition: width 0.35s, background 0.35s;
+      background: var(--gray);
+    }
+    .pfill.ok   { background: var(--green); }
+    .pfill.warn { background: var(--amber); }
+    .gcnt { font-weight: 700; min-width: 62px; text-align: right; }
+    .gcnt.ok   { color: var(--green); }
+    .gcnt.warn { color: var(--red); }
+
+    /* ── Reset button ── */
+    .footer { text-align: center; margin-top: 28px; }
+    .btn-reset {
+      padding: 9px 28px; border-radius: 8px;
+      border: 1px solid var(--border); background: white;
+      font-size: 0.85rem; color: var(--gray); cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-reset:hover { background: #f3f4f6; }
+
+    /* ── Page footer ── */
+    .page-footer {
+      margin-top: 40px;
+      border-top: 1px solid var(--border);
+      padding: 28px 20px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    }
+    .disclaimer-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gray);
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .disclaimer-body {
+      font-size: 0.78rem;
+      color: #6b7280;
+      line-height: 1.8;
+    }
+    .disclaimer-body li { margin-left: 1em; margin-bottom: 2px; }
+    .copyright {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: 0.76rem;
+      color: #9ca3af;
+      text-align: center;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      font-size: 0.76rem; color: var(--gray);
+      margin-bottom: 16px; padding: 10px 14px;
+      background: white; border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 10px; height: 10px; border-radius: 100px; }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.05rem; }
+      .result-panel { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>健康経営優良法人 2026（中小規模法人部門）</h1>
+  <p>認定要件 簡易チェックシート ／ 表3準拠</p>
+</header>
+
+<!-- Mode selector -->
+<div class="sticky-bar">
+  <span>法人区分：</span>
+  <button class="mode-btn active" onclick="setMode('medium')">中小規模法人部門</button>
+  <button class="mode-btn" onclick="setMode('small')">小規模法人特例</button>
+</div>
+
+<div class="container">
+
+  <!-- Result cards -->
+  <div class="result-panel">
+    <div class="res-card" id="res-cert">
+      <div class="r-label">認定（中小規模法人部門）</div>
+      <div class="r-val">—</div>
+    </div>
+    <div class="res-card" id="res-small">
+      <div class="r-label">認定（小規模法人特例）</div>
+      <div class="r-val">—</div>
+    </div>
+    <div class="res-card" id="res-bright">
+      <div class="r-label">ブライト500 / ネクストブライト1000</div>
+      <div class="r-val">—</div>
+    </div>
+    <div class="res-card" id="res-cnt">
+      <div class="r-label">①〜⑰ 選択数</div>
+      <div class="r-val" id="cnt-val">0 / 17</div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <span><span class="dot" style="background:#fee2e2;border:1.5px solid #fca5a5;"></span>必須項目</span>
+    <span><span class="dot" style="background:#dbeafe;border:1.5px solid #93c5fd;"></span>① ②③（健康課題把握）</span>
+    <span><span class="dot" style="background:#d1fae5;border:1.5px solid #6ee7b7;"></span>④〜⑩（土台づくり）</span>
+    <span><span class="dot" style="background:#ede9fe;border:1.5px solid #c4b5fd;"></span>⑪〜⑰（健康増進施策）</span>
+  </div>
+
+  <!-- ══ 1. 経営理念・方針 ══ -->
+  <div class="section">
+    <div class="sec-head lv1">
+      1. 経営理念・方針
+      <span class="req-tag">必須</span>
+    </div>
+    <label class="item req-bg">
+      <input type="checkbox" id="m1" onchange="update()">
+      <span class="badge b-must">必須</span>
+      <span>健康経営の社内外への発信及び経営者自身の健診受診</span>
+    </label>
+  </div>
+
+  <!-- ══ 2. 組織体制 ══ -->
+  <div class="section">
+    <div class="sec-head lv1">
+      2. 組織体制
+      <span class="req-tag">必須</span>
+    </div>
+    <label class="item req-bg">
+      <input type="checkbox" id="m2" onchange="update()">
+      <span class="badge b-must">必須</span>
+      <span>健康づくり担当者の設置</span>
+    </label>
+    <label class="item req-bg">
+      <input type="checkbox" id="m3" onchange="update()">
+      <span class="badge b-must">必須</span>
+      <span>（求めに応じて）40歳以上の従業員の健診データの提供</span>
+    </label>
+  </div>
+
+  <!-- ══ 3. 制度・施策実行 ══ -->
+  <div class="section">
+    <div class="sec-head lv1">3. 制度・施策実行</div>
+
+    <!-- ─ (1) 健康課題の把握 ─ -->
+    <div class="sec-head lv2">（1）従業員の健康課題の把握と必要な対策の検討</div>
+
+    <!-- 推進計画 -->
+    <div class="sec-head lv3">
+      健康課題に基づいた具体的な目標の設定
+      <span class="req-tag" id="plan-req-tag">必須</span>
+    </div>
+    <label class="item req-bg" id="plan-item">
+      <input type="checkbox" id="plan" onchange="update()">
+      <span class="badge b-must" id="plan-badge">必須</span>
+      <span>
+        健康経営の具体的な推進計画
+        <span class="item-sub" id="plan-sub">中小規模法人部門では単独で必須です</span>
+      </span>
+    </label>
+
+    <!-- ①〜③ -->
+    <div class="sec-head lv3">
+      健康課題の把握
+      <span class="req-tag" id="grp-a-req">①〜③のうち 2項目以上</span>
+    </div>
+    <label class="item">
+      <input type="checkbox" id="i1" onchange="update()">
+      <span class="badge b-a">①</span>
+      <span>定期健診受診率（実質100%）</span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i2" onchange="update()">
+      <span class="badge b-a">②</span>
+      <span>受診勧奨の取り組み</span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i3" onchange="update()">
+      <span class="badge b-a">③</span>
+      <span>50人未満の事業場におけるストレスチェックの実施</span>
+    </label>
+    <div class="grp-foot">
+      <span id="ga-label" style="min-width:175px"></span>
+      <div class="pbar"><div class="pfill" id="ga-bar"></div></div>
+      <span class="gcnt" id="ga-cnt"></span>
+    </div>
+
+    <!-- ─ (2) 土台づくり ─ -->
+    <div class="sec-head lv2">（2）健康経営の実践に向けた土台づくり</div>
+    <div class="sec-head lv3">
+      各種取り組み
+      <span class="req-tag">④〜⑩のうち 2項目以上</span>
+    </div>
+    <label class="item">
+      <input type="checkbox" id="i4" onchange="update()">
+      <span class="badge b-b">④</span>
+      <span>管理職または従業員に対する教育機会の設定<span class="item-sub">ヘルスリテラシーの向上</span></span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i5" onchange="update()">
+      <span class="badge b-b">⑤</span>
+      <span>適切な働き方実現に向けた取り組み<span class="item-sub">ワークライフバランスの推進</span></span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i6" onchange="update()">
+      <span class="badge b-b">⑥</span>
+      <span>仕事と育児または介護の両立支援の取り組み<span class="item-sub">ワークライフバランスの推進</span></span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i7" onchange="update()">
+      <span class="badge b-b">⑦</span>
+      <span>コミュニケーションの促進に向けた取り組み<span class="item-sub">職場の活性化</span></span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i8" onchange="update()">
+      <span class="badge b-b">⑧</span>
+      <span>がん等の私病に関する復職・両立支援の取り組み（⑩以外）<span class="item-sub">仕事と治療の両立支援</span></span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i9" onchange="update()">
+      <span class="badge b-b">⑨</span>
+      <span>女性の健康保持・増進に向けた取り組み<span class="item-sub">性差・年齢に配慮した職場づくり</span></span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i10" onchange="update()">
+      <span class="badge b-b">⑩</span>
+      <span>高年齢従業員の健康や体力の状況に応じた取り組み<span class="item-sub">性差・年齢に配慮した職場づくり</span></span>
+    </label>
+    <div class="grp-foot">
+      <span style="min-width:175px">④〜⑩ 選択数（2項目以上必要）</span>
+      <div class="pbar"><div class="pfill" id="gb-bar"></div></div>
+      <span class="gcnt" id="gb-cnt"></span>
+    </div>
+
+    <!-- ─ (3) 健康づくり施策 ─ -->
+    <div class="sec-head lv2">（3）従業員の心と身体の健康づくりに関する具体的対策</div>
+    <div class="sec-head lv3">
+      具体的な健康保持・増進施策
+      <span class="req-tag" id="grp-c-req">⑪〜⑰のうち 4項目以上</span>
+    </div>
+    <label class="item">
+      <input type="checkbox" id="i11" onchange="update()">
+      <span class="badge b-c">⑪</span>
+      <span>保健指導の実施または特定保健指導実施機会の提供に関する取り組み</span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i12" onchange="update()">
+      <span class="badge b-c">⑫</span>
+      <span>食生活の改善に向けた取り組み</span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i13" onchange="update()">
+      <span class="badge b-c">⑬</span>
+      <span>運動機会の増進に向けた取り組み</span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i14" onchange="update()">
+      <span class="badge b-c">⑭</span>
+      <span>長時間労働者への対応に関する取り組み</span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i15" onchange="update()">
+      <span class="badge b-c">⑮</span>
+      <span>心の健康保持・増進に関する取り組み</span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i16" onchange="update()">
+      <span class="badge b-c">⑯</span>
+      <span>感染症予防に関する取り組み</span>
+    </label>
+    <label class="item">
+      <input type="checkbox" id="i17" onchange="update()">
+      <span class="badge b-c">⑰</span>
+      <span>喫煙率低下に向けた取り組み<span class="item-sub">喫煙対策</span></span>
+    </label>
+    <div class="grp-foot">
+      <span id="gc-label" style="min-width:175px"></span>
+      <div class="pbar"><div class="pfill" id="gc-bar"></div></div>
+      <span class="gcnt" id="gc-cnt"></span>
+    </div>
+
+    <!-- 受動喫煙対策（必須） -->
+    <div class="sec-head lv3">
+      受動喫煙対策
+      <span class="req-tag">必須</span>
+    </div>
+    <label class="item req-bg">
+      <input type="checkbox" id="msmoke" onchange="update()">
+      <span class="badge b-must">必須</span>
+      <span>受動喫煙対策に関する取り組み</span>
+    </label>
+  </div>
+
+  <!-- ══ 4. 評価・改善 ══ -->
+  <div class="section">
+    <div class="sec-head lv1">
+      4. 評価・改善
+      <span class="req-tag">必須</span>
+    </div>
+    <label class="item req-bg">
+      <input type="checkbox" id="m4" onchange="update()">
+      <span class="badge b-must">必須</span>
+      <span>健康経営の取り組みに対する評価・改善</span>
+    </label>
+  </div>
+
+  <!-- ══ 5. 法令遵守 ══ -->
+  <div class="section">
+    <div class="sec-head lv1">
+      5. 法令遵守・リスクマネジメント（自主申告）
+      <span class="req-tag">必須</span>
+    </div>
+    <label class="item req-bg">
+      <input type="checkbox" id="m5" onchange="update()">
+      <span class="badge b-must">必須</span>
+      <span>
+        法令遵守の自主申告
+        <span class="item-sub">定期健診の実施・ストレスチェックの実施（50人以上の事業場）・労基法または労安衛法に係る違反による送検なし、等</span>
+      </span>
+    </label>
+  </div>
+
+  <div class="footer">
+    <button class="btn-reset" onclick="resetAll()">チェックをすべてリセット</button>
+  </div>
+
+  <!-- ── Page footer ── -->
+  <div class="page-footer">
+    <div class="disclaimer-title">【免責事項】</div>
+    <ul class="disclaimer-body">
+      <li>本チェックシートは、経済産業省・日本健康会議が公表する「健康経営優良法人2026認定要件（表3）」をもとに作成した簡易確認ツールです。</li>
+      <li>実際の申請・認定にあたっては、必ず経済産業省および日本健康会議が公表する最新の公式資料をご確認ください。</li>
+      <li>本ツールによる判定結果は、認定を保証するものではありません。認定要件の解釈・適用については、所管機関または専門家にご相談ください。</li>
+      <li>本ツールの利用により生じた損害・不利益について、作成者はいかなる責任も負いかねます。</li>
+    </ul>
+    <div class="copyright">
+      © 2026 （一社）日本顧問パッケージ協会・（株）セントルラボ　All Rights Reserved.
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  let mode = 'medium'; // 'medium' | 'small'
+
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll('.mode-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', (m === 'medium' && i === 0) || (m === 'small' && i === 1));
+    });
+    updateModeUI();
+    update();
+  }
+
+  function updateModeUI() {
+    const isSmall = mode === 'small';
+
+    // 推進計画の表示
+    document.getElementById('plan-req-tag').textContent = isSmall ? '①〜③と合算' : '必須';
+    document.getElementById('plan-badge').textContent   = isSmall ? '選択可'   : '必須';
+    document.getElementById('plan-item').classList.toggle('req-bg', !isSmall);
+    document.getElementById('plan-sub').textContent = isSmall
+      ? '小規模特例では①〜③とまとめて2項目以上の選択でOKです'
+      : '中小規模法人部門では単独で必須です';
+
+    // Group A の要件テキスト
+    document.getElementById('grp-a-req').textContent = isSmall
+      ? '推進計画＋①〜③のうち 2項目以上'
+      : '①〜③のうち 2項目以上';
+
+    // Group C の要件テキスト
+    document.getElementById('grp-c-req').textContent = isSmall
+      ? '⑪〜⑰のうち 2項目以上'
+      : '⑪〜⑰のうち 4項目以上';
+  }
+
+  // --- helpers ---
+  function chk(id) { return document.getElementById(id).checked ? 1 : 0; }
+
+  function setCard(id, status, text) {
+    const el = document.getElementById(id);
+    el.classList.remove('pass', 'fail', 'partial');
+    if (status === 'pass')    el.classList.add('pass');
+    else if (status === 'fail')   el.classList.add('fail');
+    else if (status === 'partial') el.classList.add('partial');
+    el.querySelector('.r-val').textContent = text;
+  }
+
+  function setBar(barId, cntId, labelId, labelText, current, required, max) {
+    const bar = document.getElementById(barId);
+    const cnt = document.getElementById(cntId);
+    if (labelId) document.getElementById(labelId).textContent = labelText;
+    const pct  = Math.min(100, (current / max) * 100);
+    bar.style.width = pct + '%';
+    const ok = current >= required;
+    bar.className = 'pfill ' + (current === 0 ? '' : ok ? 'ok' : 'warn');
+    cnt.className  = 'gcnt ' + (ok ? 'ok' : 'warn');
+    cnt.textContent = `${current} / ${required}以上`;
+  }
+
+  // --- main ---
+  function update() {
+    const isSmall = mode === 'small';
+
+    // Mandatory base (共通)
+    const mandatory = chk('m1') && chk('m2') && chk('m3') && chk('msmoke') && chk('m4') && chk('m5');
+
+    const planChk = chk('plan');
+
+    // Groups
+    const gA = chk('i1') + chk('i2') + chk('i3');
+    const gB = chk('i4') + chk('i5') + chk('i6') + chk('i7') + chk('i8') + chk('i9') + chk('i10');
+    const gC_items = chk('i11') + chk('i12') + chk('i13') + chk('i14') + chk('i15') + chk('i16') + chk('i17');
+    const total17 = gA + gB + gC_items;
+
+    // ── Group A bar ──
+    if (isSmall) {
+      const gA_small = planChk + gA; // plan counts here too
+      setBar('ga-bar', 'ga-cnt', 'ga-label',
+        '推進計画＋①〜③ 選択数（2項目以上）', gA_small, 2, 4);
+    } else {
+      setBar('ga-bar', 'ga-cnt', 'ga-label',
+        '①〜③ 選択数（2項目以上必要）', gA, 2, 3);
+    }
+
+    // ── Group B bar ──
+    setBar('gb-bar', 'gb-cnt', null, '', gB, 2, 7);
+
+    // ── Group C bar（⑪〜⑰のみ） ──
+    const cReq = isSmall ? 2 : 4;
+    setBar('gc-bar', 'gc-cnt', 'gc-label',
+      `⑪〜⑰ 選択数（${cReq}項目以上必要）`, gC_items, cReq, 7);
+
+    // ── 総選択数 ──
+    document.getElementById('cnt-val').textContent = `${total17} / 17`;
+    const cntCard = document.getElementById('res-cnt');
+    cntCard.classList.remove('pass','fail','partial');
+    if (total17 >= 16) cntCard.classList.add('pass');
+    else if (total17 >= 4) cntCard.classList.add('partial');
+
+    // ── 中小規模法人部門 判定 ──
+    const med_ok =
+      mandatory &&
+      planChk === 1 &&
+      gA >= 2 &&
+      gB >= 2 &&
+      gC_items >= 4;
+
+    if (!mandatory || !planChk) {
+      setCard('res-cert', 'fail', '❌ 必須項目不足');
+    } else if (!med_ok) {
+      const lacks = [];
+      if (gA < 2) lacks.push('①〜③');
+      if (gB < 2) lacks.push('④〜⑩');
+      if (gC_items < 4) lacks.push('⑪〜⑰');
+      setCard('res-cert', 'fail', `❌ 不足：${lacks.join('・')}`);
+    } else {
+      setCard('res-cert', 'pass', '✅ 要件充足');
+    }
+
+    // ── 小規模法人特例 判定 ──
+    const small_gA = planChk + gA;
+    const small_ok =
+      mandatory &&
+      small_gA >= 2 &&
+      gB >= 2 &&
+      gC_items >= 2;
+
+    if (!mandatory) {
+      setCard('res-small', 'fail', '❌ 必須項目不足');
+    } else if (!small_ok) {
+      const lacks = [];
+      if (small_gA < 2) lacks.push('推進計画＋①〜③');
+      if (gB < 2) lacks.push('④〜⑩');
+      if (gC_items < 2) lacks.push('⑪〜⑰');
+      setCard('res-small', 'fail', `❌ 不足：${lacks.join('・')}`);
+    } else {
+      setCard('res-small', 'pass', '✅ 要件充足');
+    }
+
+    // ── ブライト500 / ネクストブライト1000 判定 ──
+    // 中小規模法人部門の認定要件 + ①〜⑰が16項目以上
+    if (med_ok && total17 >= 16) {
+      setCard('res-bright', 'pass', '✅ 要件充足');
+    } else if (med_ok) {
+      setCard('res-bright', 'partial', `📊 ${total17} / 16項目`);
+    } else {
+      setCard('res-bright', 'fail', `❌ ${total17} / 16項目`);
+    }
+  }
+
+  function resetAll() {
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    update();
+  }
+
+  // init
+  updateModeUI();
+  update();
+</script>
+</body>
+</html>
